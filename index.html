@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Master Pro 2025</title>
+    <style>
+        :root { --p: #0f172a; --a: #4f46e5; --bg: #f8fafc; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); margin: 0; direction: rtl; }
+        #authOverlay { position: fixed; inset: 0; background: var(--p); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+        #mainApp { display: none; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 300px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="authOverlay">
+    <div class="card">
+        <h2>MASTER Pro</h2>
+        <input type="email" id="email" placeholder="אימייל">
+        <input type="password" id="pass" placeholder="סיסמה">
+        <button id="loginBtn" style="width:100%; padding:10px; background:var(--a); color:white; border:none; border-radius:8px; cursor:pointer;">כניסה</button>
+        <p id="errMsg" style="color:red; font-size:12px; display:none;"></p>
+    </div>
+</div>
+
+<div id="mainApp">
+    <nav style="background:var(--p); color:white; padding:15px;">
+        <strong>המערכת מוכנה לעבודה</strong>
+    </nav>
+    <div style="padding:20px;">
+        <h1>ברוך הבא!</h1>
+        <p>הקובץ המאחד פועל כעת בצורה תקינה.</p>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+    // חשוב: כאן חייבים להיות הפרטים שלך מה-Firebase Console
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        projectId: "YOUR_PROJECT",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    try {
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('authOverlay').remove();
+                document.getElementById('mainApp').style.display = 'block';
+            }
+        });
+
+        document.getElementById('loginBtn').onclick = async () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('pass').value;
+            try { await signInWithEmailAndPassword(auth, e, p); } 
+            catch(err) { 
+                document.getElementById('errMsg').innerText = "שגיאה בפרטים";
+                document.getElementById('errMsg').style.display = "block";
+            }
+        };
+    } catch (e) {
+        console.error("Firebase fail", e);
+    }
+</script>
+</body>
+</html>
